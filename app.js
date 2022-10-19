@@ -15,3 +15,9 @@ $.get("ip.txt", function(data) {
     var ipDiv = $("#ipAddress");
     ipDiv.text(data);
 });
+
+// Load a single string from a text file and display
+$.get("region.txt", function(data) {
+    var regionDiv = $("#Region");
+    regionDiv.text(data);
+});
