@@ -1,0 +1,40 @@
+version: 0.2
+
+env:
+  variables: {}
+  parameter-store: {}
+
+phases:
+  install:
+    commands:
+      - echo Entered the install phase...
+      - apt-get -qq update && apt-get -qq install curl
+      - apt-get -qq install asciidoctor
+      - curl -s -L https://github.com/gohugoio/hugo/releases/download/v0.79.0/hugo_0.79.0_Linux-64bit.deb -o hugo.deb
+      - dpkg -i hugo.deb
+    finally:
+      - echo Installation done
+  build:
+    commands:
+      - echo Entered the build phase ...
+      - echo Build started on `date`
+      - echo $CODEBUILD_SRC_DIR
+      - cd $CODEBUILD_SRC_DIR
+      - rm -f buildspec.yml && rm -f .git && rm -f README.md
+      - rm -rf themes/hugo-coder
+      - git rm -r themes/hugo-coder
+      - git submodule add https://github.com/luizdepra/hugo-coder.git themes/hugo-coder
+      - hugo
+    finally:
+      - echo Building the HTML files finished
+  post_build:
+    commands:
+      - echo Entered the post_build phase...
+      - echo Build completed on `date`
+      - aws s3 sync public/ s3://$S3_BUCKET --region region
+artifacts:
+  files:
+    - '**/*'
+secondary-artifacts: {}
+cache:
+  paths: []
